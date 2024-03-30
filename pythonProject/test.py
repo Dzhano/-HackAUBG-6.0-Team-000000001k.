@@ -43,7 +43,7 @@ def upload_to_azure(encoded_image):
     headers = {
         'Content-Type': 'application/json',
         'Authorization': ('Bearer ' + api_key),
-        'azureml-model-deployment': 'z00000001k-ml-cydmy-5'
+        'azureml-model-deployment': 'z00000001k-ml-cydmy-6'
     }
 
     req = urllib.request.Request(url, body, headers)
@@ -51,7 +51,22 @@ def upload_to_azure(encoded_image):
     try:
         response = urllib.request.urlopen(req)
         result = response.read()
-        print(result)
+        result_json = json.loads(result)
+        print(result_json)
+
+        # Check if the response contains information about the image
+        if 'image_url' in result_json:
+            image_url = result_json['image_url']
+            # Load and display the image using OpenCV
+            img = cv2.imread('./ads/' + image_url)
+            cv2.imshow('Azure Response Image', img)
+            cv2.waitKey(0)
+        else:
+            # Load and display a default image if no image URL is provided in the response
+            default_img = cv2.imread('./ads/Yettel.png')
+            cv2.imshow('Default Image', default_img)
+            cv2.waitKey(0)
+
     except urllib.error.HTTPError as error:
         print("The request failed with status code: " + str(error.code))
         print(error.info())
