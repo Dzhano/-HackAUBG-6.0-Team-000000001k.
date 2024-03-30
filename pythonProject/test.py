@@ -43,7 +43,7 @@ def upload_to_azure(encoded_image):
     headers = {
         'Content-Type': 'application/json',
         'Authorization': ('Bearer ' + api_key),
-        'azureml-model-deployment': 'z00000001k-ml-cydmy-6'
+        'azureml-model-deployment': 'z00000001k-ml-cydmy-7'
     }
 
     req = urllib.request.Request(url, body, headers)
@@ -54,18 +54,26 @@ def upload_to_azure(encoded_image):
         result_json = json.loads(result)
         print(result_json)
 
-        # Check if the response contains information about the image
-        if 'image_url' in result_json:
-            image_url = result_json['image_url']
-            # Load and display the image using OpenCV
-            img = cv2.imread('./ads/' + image_url)
-            cv2.imshow('Azure Response Image', img)
-            cv2.waitKey(0)
-        else:
-            # Load and display a default image if no image URL is provided in the response
-            default_img = cv2.imread('./ads/Yettel.png')
-            cv2.imshow('Default Image', default_img)
-            cv2.waitKey(0)
+        # Check if the response contains an answer that corresponds to an image filename
+        if 'answer' in result_json:
+            answer = result_json['answer']
+            image_path = f'./ads/{answer}.jpg'  # Assuming the image filename is the same as the answer
+            if os.path.exists(image_path):
+                # Load the image
+                img = cv2.imread(image_path)
+
+                # Set the window name and properties
+                cv2.namedWindow('Azure Response Image', cv2.WINDOW_NORMAL)
+                cv2.setWindowProperty('Azure Response Image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+                # Resize the image to 1920x1080
+                img = cv2.resize(img, (1920, 1080))
+
+                # Display the image
+                cv2.imshow('Azure Response Image', img)
+                cv2.waitKey(1)  # Change waitKey to 1 millisecond
+            else:
+                print(f"Image file '{image_path}' not found.")
 
     except urllib.error.HTTPError as error:
         print("The request failed with status code: " + str(error.code))
