@@ -8,12 +8,13 @@ import ssl
 import base64
 
 
-def upload_to_azure(image_path):
-    # Read the image file
+def encode_image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
         encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+    return encoded_image
 
-    # Construct the JSON payload
+
+def upload_to_azure(encoded_image):
     data = {
         'chat_history': [
             {
@@ -29,7 +30,7 @@ def upload_to_azure(image_path):
                 }
             }
         ],
-        'image': encoded_image
+        'base64': encoded_image
     }
 
     body = json.dumps(data).encode('utf-8')
@@ -42,7 +43,7 @@ def upload_to_azure(image_path):
     headers = {
         'Content-Type': 'application/json',
         'Authorization': ('Bearer ' + api_key),
-        'azureml-model-deployment': 'z00000001k-ml-cydmy-3'
+        'azureml-model-deployment': 'z00000001k-ml-cydmy-5'
     }
 
     req = urllib.request.Request(url, body, headers)
@@ -69,8 +70,13 @@ def capture_and_upload():
         cv2.imwrite("image.jpg", frame)
         print("Picture taken!")
 
-        # Upload the image to Azure
-        upload_to_azure("image.jpg")
+        # Encode the image into base64
+        encoded_image = encode_image_to_base64("image.jpg")
+
+        # Check if the image was encoded successfully
+        if encoded_image:
+            # Upload the image to Azure
+            upload_to_azure(encoded_image)
 
         # Release the video capture object
         cap.release()
