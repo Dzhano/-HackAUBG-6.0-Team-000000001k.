@@ -76,34 +76,42 @@ def upload_to_azure(encoded_image):
 def capture_and_upload():
     # Continuously capture images from a webcam, encode them, and upload to Azure
     cap = cv2.VideoCapture(0)  # Start video capture
+    face_detected = False  # Flag to track if a face is detected in real-time
+
     while True:
-        # cap = cv2.VideoCapture(0)!!!!!!!!!!
-        ret, frame = cap.read()
+        ret, frame = cap.read()  # Capture the frame
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Convert frame to grayscale
 
-        # Convert the frame to grayscale for face detection
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        # Detect faces in the frame
+        # Detect faces in the frame in real-time
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
         if len(faces) > 0:
-            print("Face noticed")
+            print("Face detected in real-time")
+            face_detected = True
+            time.sleep(2)  # Wait for 2 seconds
 
-        # Wait for 2 seconds
-        time.sleep(2)
+            ret, picture_frame = cap.read()  # Capture the picture after delay
+            gray_picture = cv2.cvtColor(picture_frame, cv2.COLOR_BGR2GRAY)  # Convert picture frame to grayscale
 
-        # Re-detect faces in the frame after 2 seconds
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        new_faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+            # Detect faces in the picture
+            picture_faces = face_cascade.detectMultiScale(gray_picture, scaleFactor=1.1, minNeighbors=5,
+                                                          minSize=(30, 30))
+            if len(picture_faces) > 0:
+                # If face detected in the picture, save and upload it
+                cv2.imwrite("image.jpg", picture_frame)
+                print("Face detected in the picture. Picture taken!")
+                encoded_image = encode_image_to_base64("image.jpg")
+                if encoded_image:
+                    upload_to_azure(encoded_image)
+                    #print("SEND TO AZURE")
+                face_detected = False  # Reset the flag
+                time.sleep(10)
+            else:
+                print("No face detected in the picture. Restarting the cycle...")
+                face_detected = False  # Reset the flag
+        else:
+            face_detected = False  # Reset the flag
 
-        # If faces are detected, save the image and upload to Azure
-        if len(new_faces) > 0:
-            cv2.imwrite("image.jpg", frame)
-            print("Face detected and picture taken!")
-            encoded_image = encode_image_to_base64("image.jpg")
-            if encoded_image:
-                upload_to_azure(encoded_image)
 
-        time.sleep(1)
     cap.release()
 
 
