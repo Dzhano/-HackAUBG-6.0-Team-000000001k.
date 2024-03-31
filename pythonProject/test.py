@@ -44,7 +44,7 @@ def upload_to_azure(encoded_image):
     headers = {
         'Content-Type': 'application/json',
         'Authorization': ('Bearer ' + api_key),
-        'azureml-model-deployment': 'z00000001k-ml-cydmy-9'
+        'azureml-model-deployment': 'z00000001k-ml-cydmy-10'
     }
 
     req = urllib.request.Request(url, body, headers)
@@ -102,7 +102,7 @@ def capture_and_upload():
                 if encoded_image:
                     upload_to_azure(encoded_image)
                 face_detected = False  # Reset the flag
-                time.sleep(10)
+                time.sleep(3)
             else:
                 print("No face detected in the picture. Restarting the cycle...")
                 face_detected = False
