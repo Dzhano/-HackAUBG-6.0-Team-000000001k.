@@ -8,14 +8,14 @@ import base64
 # Load the pre-trained face detection model
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-
 def encode_image_to_base64(image_path):
+    # Function to encode an image to Base64 format
     with open(image_path, "rb") as image_file:
         encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
     return encoded_image
 
-
 def upload_to_azure(encoded_image):
+    # Function to upload the encoded image to Azure
     data = {
         'chat_history': [
             {
@@ -72,9 +72,8 @@ def upload_to_azure(encoded_image):
         print(error.info())
         print(error.read().decode("utf8", 'ignore'))
 
-
 def capture_and_upload():
-    # Continuously capture images from a webcam, encode them, and upload to Azure
+    # Function to continuously capture images from a webcam, encode them, and upload to Azure
     cap = cv2.VideoCapture(0)  # Start video capture
     face_detected = False  # Flag to track if a face is detected in real-time
 
@@ -102,18 +101,15 @@ def capture_and_upload():
                 encoded_image = encode_image_to_base64("image.jpg")
                 if encoded_image:
                     upload_to_azure(encoded_image)
-                    #print("SEND TO AZURE")
                 face_detected = False  # Reset the flag
                 time.sleep(10)
             else:
                 print("No face detected in the picture. Restarting the cycle...")
-                face_detected = False  # Reset the flag
+                face_detected = False
         else:
-            face_detected = False  # Reset the flag
-
+            face_detected = False
 
     cap.release()
-
 
 if __name__ == "__main__":
     capture_and_upload()
