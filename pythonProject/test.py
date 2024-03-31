@@ -45,7 +45,7 @@ def upload_to_azure(encoded_image):
     headers = {
         'Content-Type': 'application/json',
         'Authorization': ('Bearer ' + api_key),
-        'azureml-model-deployment': 'z00000001k-ml-cydmy-7'
+        'azureml-model-deployment': 'z00000001k-ml-cydmy-9'
     }
 
     req = urllib.request.Request(url, body, headers)  # Prepare the request
