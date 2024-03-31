@@ -104,7 +104,7 @@ def capture_and_upload():
                 face_detected = False  # Reset the flag
                 time.sleep(3)
             else:
-                print("No face detected in the picture. Restarting the cycle...")
+                print("Analyzing...")
                 face_detected = False
         else:
             face_detected = False
